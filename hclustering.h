@@ -9,16 +9,17 @@ class HClustering
  public:
     typedef float (*DistFunc)(Pt &el1, Pt &el2);
 
- private:
-    DistFunc distFunc;
-    HClustering(void) { ; };
-
- public:
-    HClustering(DistFunc p_distFunc) {
+    HClustering(DistFunc p_distFunc, unsigned p_numClusters) {
 	distFunc = p_distFunc;
+	numClusters = p_numClusters;
     }
 
     void cluster(Pt *data, unsigned nElm);
+
+ private:
+    DistFunc distFunc;
+    unsigned numClusters;
+    HClustering(void) { ; };
 };
 
 #endif // _HCLUSTERING_

@@ -4,7 +4,7 @@
 #include "hclustering.h"
 
 #define INF -1.0
-#define IS_REP(x) (clusters[(x)].rep == &clusters[(x)])
+#define IS_REP(x) (clusters[(x)].rep == clusters[(x)].id)
 
 inline unsigned make1D(unsigned i, unsigned j, unsigned nElm)
 {
@@ -21,8 +21,8 @@ float HClustering<Pt>::computeLinkage(unsigned c1, unsigned c2)
 
     // for looping convinience, we add the rep of a node to
     // its "members" list and pop it back later
-    clusters[c1].members.push_back(&clusters[c1]);
-    clusters[c2].members.push_back(&clusters[c2]);
+    clusters[c1].members.push_back(c1);
+    clusters[c2].members.push_back(c2);
 
     switch (linkageType) {
     case LINK_MINIMUM:
@@ -30,8 +30,8 @@ float HClustering<Pt>::computeLinkage(unsigned c1, unsigned c2)
 	float minDistanceSeen = INF;
 	for (i = 0; i < clusters[c1].members.size(); i++) {
 	    for (j = 0; j < clusters[c2].members.size(); j++) {
-		float distance = distanceMatrix[make1D(clusters[c1].members[i]->id, 
-						       clusters[c2].members[j]->id, 
+		float distance = distanceMatrix[make1D(clusters[c1].members[i], 
+						       clusters[c2].members[j], 
 						       clusters.size())];
 		if (minDistanceSeen == INF ||
 		    minDistanceSeen > distance)
@@ -49,8 +49,8 @@ float HClustering<Pt>::computeLinkage(unsigned c1, unsigned c2)
 	float maxDistanceSeen = INF;
 	for (i = 0; i < clusters[c1].members.size(); i++) {
 	    for (j = 0; j < clusters[c2].members.size(); j++) {
-		float distance = distanceMatrix[make1D(clusters[c1].members[i]->id, 
-					        clusters[c2].members[j]->id, 
+		float distance = distanceMatrix[make1D(clusters[c1].members[i], 
+					        clusters[c2].members[j], 
 						clusters.size())];
 		if (maxDistanceSeen == INF ||
 		    maxDistanceSeen < distance)
@@ -89,6 +89,7 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
     for (i = 0; i < nElm; i++) {
 	clusters[i].el = &data[i];
 	clusters[i].id = i;
+	clusters[i].rep = i;
     }
 
     // TODO: This can be a triangural matrix to save space.
@@ -104,7 +105,7 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 	for (j = 0; j < nElm; j++) {
 	    float linkageIJ;
 	    // No need to check for cluster rep here since
-	    // at this everybody is his own rep.
+	    // at this point everybody is his own rep.
 	    assert(IS_REP(i));
 	    if (i == j)
 		continue;
@@ -156,10 +157,10 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 	clusters[i].members.insert(clusters[i].members.end(), 
 				   clusters[j].members.begin(),
 				   clusters[j].members.end());
-	clusters[j].rep = &clusters[i];
+	clusters[j].rep = i;
 	{
 	    // Just to free up memory used for the members array.
-	    std::vector<TreeNode *> tmp;
+	    std::vector<unsigned> tmp;
 	    clusters[j].members.swap(tmp);
 	}
 	
@@ -182,7 +183,7 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 	    if (!IS_REP(shortestDistance[k].first)) {
 		// This must have just happened.
 		assert(clusters[shortestDistance[k].first].rep ==
-		       &clusters[i]);
+		       clusters[i].id);
 		if (linkageType == LINK_MINIMUM) {
 		    // In case of LINK_MINIMUM the nearest
 		    // cluster would now be 'i' (since 'j'
@@ -226,7 +227,7 @@ void HClustering<Pt>::getResult(unsigned result[])
 	if (IS_REP(i))
 	    result[i] = i;
 	else
-	    result[i] = clusters[i].rep->id;
+	    result[i] = clusters[i].rep;
     }
 }
 
@@ -254,8 +255,8 @@ int main (void)
 
     // generate random points.
     for (i = 0; i < SIZE; i++) {
-	data[SIZE].x = (float)random()/(float)random();
-	data[SIZE].y = (float)random()/(float)random();
+	data[i].x = (float)random()/(float)random();
+	data[i].y = (float)random()/(float)random();
     }
 
     hc.cluster(data, SIZE);

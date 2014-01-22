@@ -2,6 +2,7 @@
 #define _HCLUSTERING_
 
 #include <cstddef>
+#include <climits>
 
 template <class Pt>
 class HClustering
@@ -35,15 +36,15 @@ class HClustering
     {
 	Pt *el;
 	unsigned id;
-	TreeNode *rep;
-	std::vector<TreeNode *> members;
-	// assert ((root == this && members.size() > 0) ||
-	//         (root != this && members.size() == 0))
+	unsigned rep;
+	std::vector<unsigned> members;
+	// assert ((rep == id && members.size() > 0) ||
+	//         (rep != id && members.size() == 0))
 
 	TreeNode(void) { 
 	    el = NULL;
 	    // Initially every node is a cluster by itself.
-	    rep = this;
+	    rep = UINT_MAX;
 	};
     };
 

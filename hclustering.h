@@ -23,6 +23,11 @@ class HClustering
     }
 
     void cluster(Pt *data, unsigned nElm);
+    // getResult will assign a cluster id (not necessarily
+    // contiguous) to each slot in result[], assuming they
+    // correspond to each slot in data[] above.
+    // NOTE: result[] is assumed to be of size nElm
+    void getResult(unsigned result[]);
 
  private:
 
@@ -30,7 +35,7 @@ class HClustering
     {
 	Pt *el;
 	unsigned id;
-	TreeNode *root;
+	TreeNode *rep;
 	std::vector<TreeNode *> members;
 	// assert ((root == this && members.size() > 0) ||
 	//         (root != this && members.size() == 0))
@@ -38,7 +43,7 @@ class HClustering
 	TreeNode(void) { 
 	    el = NULL;
 	    // Initially every node is a cluster by itself.
-	    root = this;
+	    rep = this;
 	};
     };
 

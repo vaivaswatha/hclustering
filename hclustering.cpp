@@ -1,5 +1,6 @@
 #include <vector>
 #include <cassert>
+#include <cstdlib>
 #include "hclustering.h"
 
 #define INF -1.0
@@ -29,8 +30,8 @@ float HClustering<Pt>::computeLinkage(unsigned c1, unsigned c2)
 	float minDistanceSeen = INF;
 	for (i = 0; i < clusters[c1].members.size(); i++) {
 	    for (j = 0; j < clusters[c2].members.size(); j++) {
-		float distance = distanceMatrix[make1D(clusters[c1].members[i], 
-						       clusters[c2].members[j], 
+		float distance = distanceMatrix[make1D(clusters[c1].members[i]->id, 
+						       clusters[c2].members[j]->id, 
 						       clusters.size())];
 		if (minDistanceSeen == INF ||
 		    minDistanceSeen > distance)
@@ -48,8 +49,8 @@ float HClustering<Pt>::computeLinkage(unsigned c1, unsigned c2)
 	float maxDistanceSeen = INF;
 	for (i = 0; i < clusters[c1].members.size(); i++) {
 	    for (j = 0; j < clusters[c2].members.size(); j++) {
-		float distance = distanceMatrix[make1D(clusters[c1].members[i], 
-					        clusters[c2].members[j], 
+		float distance = distanceMatrix[make1D(clusters[c1].members[i]->id, 
+					        clusters[c2].members[j]->id, 
 						clusters.size())];
 		if (maxDistanceSeen == INF ||
 		    maxDistanceSeen < distance)
@@ -78,7 +79,9 @@ template <class Pt>
 void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 {
     unsigned i, j, k, n;
-    std::vector<std::pair<unsigned, float> > shortestDistance (nElm, INF);
+    typedef std::pair<unsigned,float> shortestDistanceRow;
+    std::vector<shortestDistanceRow> 
+	shortestDistance(nElm, shortestDistanceRow(nElm, INF));
 
     // Initially there are nElm clusters, so have these many
     // TreeNodes and link them to the input data.
@@ -94,7 +97,7 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
     // fill up the distance matrix.
     for (i = 0; i < nElm; i++)
 	for (j = 0; j < nElm; j++)
-	    distanceMatrix[make1D(i, j, nElm)] = distFunc(*data[i], *data[j]);
+	    distanceMatrix[make1D(i, j, nElm)] = distFunc(data[i], data[j]);
 
     // compute the shortest distance array.
     for (i = 0; i < nElm; i++) {
@@ -206,16 +209,58 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 		// computeLinkage(i, k) cannot be smaller than
 		// the known shortest distance for node k
 		assert(distance >= shortestDistance[k].second);
-		// At this point, the shortest distance must be to a rep.
-		assert(IS_REP(clusters[k].first));
+		// At this point, the shortest distance from k must be to a rep.
+		assert(IS_REP(shortestDistance[k].first));
 	    }
 	}
     }
 }
 
+// result[] is assumed to be of size nElm
+template <class Pt>
+void HClustering<Pt>::getResult(unsigned result[])
+{
+    unsigned i;
+
+    for (i = 0; i < clusters.size(); i++) {
+	if (IS_REP(i))
+	    result[i] = i;
+	else
+	    result[i] = clusters[i].rep->id;
+    }
+}
+
 #ifdef TEST_CODE
+
+#define SIZE 100
+#define NUM_CLUSTERS 10
+
+struct Point {
+    float x, y;
+};
+
+float distPoint (Point &p1, Point &p2)
+{
+    return (((p1.x - p2.x)*(p1.x - p2.x)) +
+	    ((p1.y - p2.y)*(p1.y - p2.y)));
+}
+
 int main (void)
 {
-    
+    unsigned i, result[SIZE];
+    Point data[SIZE];
+    HClustering<Point> 
+	hc(distPoint, NUM_CLUSTERS, HClustering<Point>::LINK_MINIMUM);
+
+    // generate random points.
+    for (i = 0; i < SIZE; i++) {
+	data[SIZE].x = (float)random()/(float)random();
+	data[SIZE].y = (float)random()/(float)random();
+    }
+
+    hc.cluster(data, SIZE);
+    hc.getResult(result);
+
+    return 0;
 }
 #endif // TEST_CODE

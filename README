@@ -12,6 +12,12 @@ two points were). Hence centroid based algorithms such as kmeans could
 not be used. The implementation allows specification of custom distance
 functions.
 
+Currently single-linkage (LINK_MINIMUM) and complete-linkage 
+(LINK_MAXIMUM) are supported. When I shifted form single-linkage to 
+complete-linkage: "This results in a preference for compact clusters with 
+small diameters over long, straggly clusters, but also causes sensitivity 
+to outliers", as described in [3].
+
 Requirements:
   - GCC with support for the new c++11 standard (-std=c++0x)
     (Only for the in-built testing code).
@@ -39,3 +45,8 @@ TODO:
 
 Contact:
     vaivaswatha@hpc.serc.iisc.in (http://puttu.net/)
+
+References:
+[1] http://elki.dbs.ifi.lmu.de/wiki/Tutorial/HierarchicalClustering
+[2] http://home.deib.polimi.it/matteucc/Clustering/tutorial_html/hierarchical.html
+[3] http://nlp.stanford.edu/IR-book/html/htmledition/single-link-and-complete-link-clustering-1.html

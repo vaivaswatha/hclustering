@@ -198,8 +198,13 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 		    // now belongs to 'i').
 		    assert(shortestDistance[k].second == distance);
 		    shortestDistance[k].first = i;
-		} else if (distance > shortestDistance[k].second) {
-		    // NOTE: This can never happen in LINK_MINIMUM.
+		} else {
+		    // computeLinkage(i, k) cannot be smaller than
+		    // the known shortest distance for node k
+		    assert(distance >= shortestDistance[k].second);
+		    // reset shortestDistance for 'k' since its now invalid.
+		    shortestDistance[k].second = INF;
+		    shortestDistance[k].first = nElm;
 		    // Will now need to look through ALL
 		    // clusters for a new nearest linkage.
 		    for (j = 0; j < nElm; j++) {
@@ -215,9 +220,6 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 			}
 		    }
 		}
-		// computeLinkage(i, k) cannot be smaller than
-		// the known shortest distance for node k
-		assert(distance >= shortestDistance[k].second);
 		// At this point, the shortest distance from k must be to a rep.
 		assert(IS_REP(shortestDistance[k].first));
 	    }

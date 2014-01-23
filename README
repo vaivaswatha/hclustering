@@ -20,6 +20,8 @@ Usage:
   - Include the file "hclustering.h" in your program. The public
     members of the class "HClustering" in this file is the interface
     to the clustering code.
+  - Look at the main() function in "hclustering.cpp" for an example
+    usage of the clustering interface.
   - Make sure that "hclustering.cpp" is compiled along with your code.
   - To just test the code based on randomly generated data, you can compile
     hclustering.cpp (which defines main() conditionally) this way:

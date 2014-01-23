@@ -270,6 +270,7 @@ int main (void)
 {
     unsigned i, result[SIZE];
     Point data[SIZE];
+    // Initialize the HClustering object.
     HClustering<Point> 
 	hc(distPoint, NUM_CLUSTERS, HClustering<Point>::LINK_MINIMUM);
 
@@ -284,9 +285,11 @@ int main (void)
 	data[i].y = dist(gen);
     }
 
+    // Cluster the data and get results.
     hc.cluster(data, SIZE);
     hc.getResult(result);
 
+    // Print the data along with the clusters they are assigned to.
     for (i = 0; i < SIZE; i++) {
 	std::cout << data[i].x << " " << data[i].y <<
 	    " " << result[i] << std::endl;
@@ -294,4 +297,5 @@ int main (void)
 
     return 0;
 }
+
 #endif // TEST_CODE

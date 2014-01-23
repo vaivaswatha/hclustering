@@ -41,8 +41,14 @@ class HClustering
 
     struct TreeNode
     {
+	// Can be used to index "clusters[]"
 	unsigned id;
+	// Immediate rep. Follow through for root.
 	unsigned rep;
+	// If this node is rep, who are other members?
+	// This includes all members in the sub-tree, 
+	// not just the immediate children. Makes it
+	// easy to merge clusters this way.
 	std::vector<unsigned> members;
 	// assert ((rep == id) ||
 	//         (rep != id && members.size() == 0))
@@ -55,13 +61,19 @@ class HClustering
 	};
     };
 
+    // User defined distance function.
     DistFunc distFunc;
+    // Number of clusters to be formed ultimately.
     unsigned numClusters;
     LinkageType linkageType;
     std::vector<TreeNode> clusters;
+    // TODO: Need to see if this can be made a triangular
+    // matrix easily, or if all distances be got on-the-fly
+    // by repeatedly calling distFunc().
     std::vector<float> distanceMatrix;
 
     HClustering(void) { ; };
+    // follow through the rep field till a rep TreeNode.
     unsigned getRepRoot(unsigned i);
     // compute linkage between clusters i and k.
     float computeLinkage(unsigned i, unsigned k);
@@ -70,5 +82,6 @@ class HClustering
 // References:
 //   http://elki.dbs.ifi.lmu.de/wiki/Tutorial/HierarchicalClustering
 //   http://home.deib.polimi.it/matteucc/Clustering/tutorial_html/hierarchical.html
+//   http://nlp.stanford.edu/IR-book/html/htmledition/single-link-and-complete-link-clustering-1.html
 
 #endif // _HCLUSTERING_

@@ -15,6 +15,13 @@ class HClustering
 	LINK_AVERAGE,
     };
 
+    // p_distFunc is a pointer to the distance computation
+    // function. It takes in two <Pt> elements and returns
+    // a float. This function is expected to be symmetric.
+    // p_numClusters is the number of clusters that need to
+    // be formed by this algorithm.
+    // p_linkageType is an optional parameter that defines
+    // how to compute linkage/distance between two clusters.
     HClustering(DistFunc p_distFunc, unsigned p_numClusters, 
 		LinkageType p_linkageType = LINK_MINIMUM) 
     {
@@ -38,7 +45,7 @@ class HClustering
 	unsigned id;
 	unsigned rep;
 	std::vector<unsigned> members;
-	// assert ((rep == id && members.size() > 0) ||
+	// assert ((rep == id) ||
 	//         (rep != id && members.size() == 0))
 
 	TreeNode(void) { 
@@ -59,5 +66,9 @@ class HClustering
     // compute linkage between clusters i and k.
     float computeLinkage(unsigned i, unsigned k);
 };
+
+// References:
+//   http://elki.dbs.ifi.lmu.de/wiki/Tutorial/HierarchicalClustering
+//   http://home.deib.polimi.it/matteucc/Clustering/tutorial_html/hierarchical.html
 
 #endif // _HCLUSTERING_

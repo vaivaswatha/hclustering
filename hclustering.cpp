@@ -87,7 +87,6 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
     // TreeNodes and link them to the input data.
     clusters.resize(nElm);
     for (i = 0; i < nElm; i++) {
-	clusters[i].el = &data[i];
 	clusters[i].id = i;
 	clusters[i].rep = i;
     }

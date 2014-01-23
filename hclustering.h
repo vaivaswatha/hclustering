@@ -41,7 +41,6 @@ class HClustering
 
     struct TreeNode
     {
-	Pt *el;
 	unsigned id;
 	unsigned rep;
 	std::vector<unsigned> members;
@@ -49,7 +48,8 @@ class HClustering
 	//         (rep != id && members.size() == 0))
 
 	TreeNode(void) { 
-	    el = NULL;
+	    // not really needed.
+	    id = UINT_MAX;
 	    // Initially every node is a cluster by itself.
 	    rep = UINT_MAX;
 	};

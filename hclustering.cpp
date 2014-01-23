@@ -1,6 +1,7 @@
 #include <vector>
 #include <cassert>
 #include <cstdlib>
+#include <ctime>
 #include "hclustering.h"
 
 #define INF -1.0
@@ -134,7 +135,7 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 		shortestDistanceSeen > shortestDistance[i].second)
 	    {
 		shortestDistanceSeen = shortestDistance[i].second;
-		shortestDistanceFrom = shortestDistance[i].first;
+		shortestDistanceFrom = i;
 	    }
 	}
 
@@ -154,6 +155,7 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 	}
 	// We now need to combine the clusters i and j,
 	// So make 'j' belong to 'i' as it is smaller.
+	clusters[i].members.push_back(j);
 	clusters[i].members.insert(clusters[i].members.end(), 
 				   clusters[j].members.begin(),
 				   clusters[j].members.end());
@@ -163,6 +165,9 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 	    std::vector<unsigned> tmp;
 	    clusters[j].members.swap(tmp);
 	}
+	// The shortest distance from i needs recomputation.
+	shortestDistance[i].first = nElm;
+	shortestDistance[i].second = INF;
 	
 	// compute linkage between clusters (w.r.t i).
 	for (k = 0; k < nElm; k++) {
@@ -174,12 +179,16 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 	    distance = computeLinkage(i, k);
 	    assert(distance != INF);
 	    // Now update the shortestDistance array.
-	    if (shortestDistance[i].second > distance) {
+	    if ((shortestDistance[i].second == INF ||
+		 shortestDistance[i].second > distance))
+	    {
 		shortestDistance[i].second = distance;
 		shortestDistance[i].first = k;
 	    }
 	    // for 'k', the shortestDistance array may be
 	    // pointing to a non-rep now. Correct that.
+	    // TODO: Maybe this can be done on-demand, i.e.
+	    // when we see (i, j) distance with j being non-rep.
 	    if (!IS_REP(shortestDistance[k].first)) {
 		// This must have just happened.
 		assert(clusters[shortestDistance[k].first].rep ==
@@ -253,6 +262,7 @@ int main (void)
     HClustering<Point> 
 	hc(distPoint, NUM_CLUSTERS, HClustering<Point>::LINK_MINIMUM);
 
+    srandom(time(NULL));
     // generate random points.
     for (i = 0; i < SIZE; i++) {
 	data[i].x = (float)random()/(float)random();

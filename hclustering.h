@@ -55,6 +55,7 @@ class HClustering
     std::vector<float> distanceMatrix;
 
     HClustering(void) { ; };
+    unsigned getRepRoot(unsigned i);
     // compute linkage between clusters i and k.
     float computeLinkage(unsigned i, unsigned k);
 };

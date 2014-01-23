@@ -1,7 +1,6 @@
 #include <vector>
 #include <cassert>
 #include <cstdlib>
-#include <ctime>
 #include "hclustering.h"
 
 #define INF -1.0
@@ -124,7 +123,7 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
     for (n = nElm; n > numClusters; n--) {
 	float shortestDistanceSeen = INF;
 	unsigned shortestDistanceFrom = nElm;
-	    
+
 	// TODO: Keep a list of elements that represent a cluster.
 	// TODO: Maybe some kind of sorted list? I don't know
 	for (i = 0; i < nElm; i++) {
@@ -226,6 +225,17 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
     }
 }
 
+template <class Pt>
+unsigned HClustering<Pt>::getRepRoot(unsigned i)
+{
+    while (!IS_REP(i)) {
+	// bad programming to modify 'i'.
+	i = clusters[i].rep;
+    }
+
+    return i;
+}
+
 // result[] is assumed to be of size nElm
 template <class Pt>
 void HClustering<Pt>::getResult(unsigned result[])
@@ -233,14 +243,15 @@ void HClustering<Pt>::getResult(unsigned result[])
     unsigned i;
 
     for (i = 0; i < clusters.size(); i++) {
-	if (IS_REP(i))
-	    result[i] = i;
-	else
-	    result[i] = clusters[i].rep;
+	result[i] = getRepRoot(i);
     }
 }
 
 #ifdef TEST_CODE
+
+#include <ctime>
+#include <iostream>
+#include <random>
 
 #define SIZE 100
 #define NUM_CLUSTERS 10
@@ -262,15 +273,24 @@ int main (void)
     HClustering<Point> 
 	hc(distPoint, NUM_CLUSTERS, HClustering<Point>::LINK_MINIMUM);
 
-    srandom(time(NULL));
+    // Some stuff to generate a uniform distribution 
+    // of reals in the given range (Using 1.0-25.0 now).
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(1.0f, 25.0f);
     // generate random points.
     for (i = 0; i < SIZE; i++) {
-	data[i].x = (float)random()/(float)random();
-	data[i].y = (float)random()/(float)random();
+	data[i].x = dist(gen);
+	data[i].y = dist(gen);
     }
 
     hc.cluster(data, SIZE);
     hc.getResult(result);
+
+    for (i = 0; i < SIZE; i++) {
+	std::cout << data[i].x << " " << data[i].y <<
+	    " " << result[i] << std::endl;
+    }
 
     return 0;
 }

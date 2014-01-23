@@ -67,10 +67,8 @@ class HClustering
     unsigned numClusters;
     LinkageType linkageType;
     std::vector<TreeNode> clusters;
-    // TODO: Need to see if this can be made a triangular
-    // matrix easily, or if all distances be got on-the-fly
-    // by repeatedly calling distFunc().
-    std::vector<float> distanceMatrix;
+    void cacheDistances(Pt *data, unsigned nElm);
+    float getDistance(unsigned i, unsigned j, Pt *p_data = NULL);
 
     HClustering(void) { ; };
     // follow through the rep field till a rep TreeNode.

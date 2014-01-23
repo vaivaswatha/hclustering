@@ -6,9 +6,26 @@
 #define INF -1.0
 #define IS_REP(x) (clusters[(x)].rep == clusters[(x)].id)
 
-inline unsigned make1D(unsigned i, unsigned j, unsigned nElm)
+// Currently not caching distances at all. distFunc() will
+// be called everytime we need a distance.
+template <class Pt>
+void HClustering<Pt>::cacheDistances(Pt *data, unsigned nElm)
 {
-    return ((nElm * i) + j);
+    // NOP, just initialize getDistance.
+    getDistance(0, 0, data);
+}
+
+template <class Pt>
+float HClustering<Pt>::getDistance(unsigned i, unsigned j, Pt *p_data)
+{
+    static Pt *data = NULL;
+
+    if (data == NULL) {
+	// data must be initialized before getDistance is called with p_data being NULL.
+	assert(p_data != NULL);
+	data = p_data;
+    }
+    return distFunc(data[i], data[j]);
 }
 
 template <class Pt>
@@ -30,9 +47,8 @@ float HClustering<Pt>::computeLinkage(unsigned c1, unsigned c2)
 	float minDistanceSeen = INF;
 	for (i = 0; i < clusters[c1].members.size(); i++) {
 	    for (j = 0; j < clusters[c2].members.size(); j++) {
-		float distance = distanceMatrix[make1D(clusters[c1].members[i], 
-						       clusters[c2].members[j], 
-						       clusters.size())];
+		float distance = getDistance(clusters[c1].members[i],  
+					     clusters[c2].members[j]);
 		if (minDistanceSeen == INF ||
 		    minDistanceSeen > distance)
 		    {
@@ -49,9 +65,8 @@ float HClustering<Pt>::computeLinkage(unsigned c1, unsigned c2)
 	float maxDistanceSeen = INF;
 	for (i = 0; i < clusters[c1].members.size(); i++) {
 	    for (j = 0; j < clusters[c2].members.size(); j++) {
-		float distance = distanceMatrix[make1D(clusters[c1].members[i], 
-					        clusters[c2].members[j], 
-						clusters.size())];
+		float distance = getDistance(clusters[c1].members[i],  
+					     clusters[c2].members[j]);
 		if (maxDistanceSeen == INF ||
 		    maxDistanceSeen < distance)
 		{
@@ -91,13 +106,7 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 	clusters[i].rep = i;
     }
 
-    // TODO: This can be a triangural matrix to save space.
-    distanceMatrix.resize(nElm * nElm);
-
-    // fill up the distance matrix.
-    for (i = 0; i < nElm; i++)
-	for (j = 0; j < nElm; j++)
-	    distanceMatrix[make1D(i, j, nElm)] = distFunc(data[i], data[j]);
+    cacheDistances(data, nElm);
 
     // compute the shortest distance array.
     for (i = 0; i < nElm; i++) {

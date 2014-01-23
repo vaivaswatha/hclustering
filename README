@@ -1,0 +1,39 @@
+        Hierarchical clustering - Vaivaswatha N
+
+This is an implementation of hierarchical clustering that clusters
+based on just distances between points. 
+
+Quantification of points is not needed (as long as distance/similarity 
+between points is defined). I wrote this because I needed to cluster 
+datasets where the points were just associated with a set (and not 
+the usual multi-dimensional euclidian coordinates), and I could only 
+define the distances between points (based on how similar the sets of 
+two points were). Hence centroid based algorithms such as kmeans could
+not be used. The implementation allows specification of custom distance
+functions.
+
+Requirements:
+  - GCC with support for the new c++11 standard (-std=c++0x)
+    (Only for the in-built testing code).
+
+Usage:
+  - Include the file "hclustering.h" in your program. The public
+    members of the class "HClustering" in this file is the interface
+    to the clustering code.
+  - Make sure that "hclustering.cpp" is compiled along with your code.
+  - To just test the code based on randomly generated data, you can compile
+    hclustering.cpp (which defines main() conditionally) this way:
+       $g++ -std=c++11 -o hclustering -DTEST_CODE hclustering.cpp
+    You can run "./hclustering > clustered_data.txt" to get a set of
+    randomly data along with their cluster ids (not necessarily starting
+    from 0). This file can be visualised in gnuplot as below:
+       gnuplot> plot 'clustered_data.txt' using 1:2:3 with labels
+                             OR
+       gnuplot> plot 'clustered_data.txt' using 1:2:3 with points palette
+
+TODO:
+  - Still need to do a lot of optimizations, with the most important one
+    being improving upon the NxN matrix that holds the distance data.
+
+Contact:
+    vaivaswatha@hpc.serc.iisc.in (http://puttu.net/)

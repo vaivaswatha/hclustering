@@ -38,10 +38,10 @@ Usage:
        gnuplot> plot 'clustered_data.txt' using 1:2:3 with labels
                              OR
        gnuplot> plot 'clustered_data.txt' using 1:2:3 with points palette
-  - For improved gnuploat support, uncomment the #define GNUPLOT in 
-    "hclustering.cpp". This will create files in /tmp/hclustering, along
+  - For improved gnuplot support, uncomment the #define GNUPLOT in 
+    "hclustering.cpp". This will create files in /tmp/hclustering/, along
     with a gnuplot script to render them. Just execute gnuplot as:
-        $cd /tmp/hclustering ; gnuplot plot.gp
+        $cd /tmp/hclustering/ ; gnuplot plot.gp
     This will display the clustered data.
     NOTE: Make sure /tmp/hclustering/ exists, the program will not create it.
 

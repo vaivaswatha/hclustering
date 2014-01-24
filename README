@@ -41,7 +41,8 @@ Usage:
 
 TODO:
   - Still need to do a lot of optimizations, with the most important one
-    being improving upon the NxN matrix that holds the distance data.
+    being smartly caching the distance data (instead of calling user
+    distance function everytime).
 
 Contact:
     vaivaswatha@hpc.serc.iisc.in (http://puttu.net/)

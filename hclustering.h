@@ -23,7 +23,7 @@ class HClustering
     // p_linkageType is an optional parameter that defines
     // how to compute linkage/distance between two clusters.
     HClustering(DistFunc p_distFunc, unsigned p_numClusters, 
-		LinkageType p_linkageType = LINK_MINIMUM) 
+		LinkageType p_linkageType = LINK_MAXIMUM) 
     {
 	distFunc = p_distFunc;
 	numClusters = p_numClusters;

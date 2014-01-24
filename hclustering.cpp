@@ -263,8 +263,8 @@ void HClustering<Pt>::getResult(unsigned result[])
 #include <iostream>
 #include <random>
 
-#define SIZE 100
-#define NUM_CLUSTERS 10
+#define SIZE 5000
+#define NUM_CLUSTERS 50
 
 struct Point {
     float x, y;
@@ -282,13 +282,13 @@ int main (void)
     Point data[SIZE];
     // Initialize the HClustering object.
     HClustering<Point> 
-	hc(distPoint, NUM_CLUSTERS, HClustering<Point>::LINK_MINIMUM);
+	hc(distPoint, NUM_CLUSTERS, HClustering<Point>::LINK_MAXIMUM);
 
     // Some stuff to generate a uniform distribution 
     // of reals in the given range (Using 1.0-25.0 now).
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dist(1.0f, 25.0f);
+    std::uniform_real_distribution<float> dist(1.0f, 255.0f);
     // generate random points.
     for (i = 0; i < SIZE; i++) {
 	data[i].x = dist(gen);

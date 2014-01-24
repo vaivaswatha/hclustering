@@ -196,6 +196,14 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 	    // pointing to a non-rep now. Correct that.
 	    // TODO: Maybe this can be done on-demand, i.e.
 	    // when we see (i, j) distance with j being non-rep.
+	    // BUG: In case of strong-linkage, the "distance"
+	    // between two clusters may increase. For example, 
+	    // if 'x' had 'y' as the nearest neighbour, and some
+	    // other cluster 'z' merges with 'y', but 'z' is farther
+	    // to 'x' than 'y' was. In this case, even though 'x'
+	    // has nearest node to a rep 'y', it will still need
+	    // updation. So below condition of checking for non-rep
+	    // is not sufficient.
 	    if (!IS_REP(shortestDistance[k].first)) {
 		// This must have just happened.
 		assert(clusters[shortestDistance[k].first].rep ==

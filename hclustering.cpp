@@ -261,10 +261,15 @@ void HClustering<Pt>::getResult(unsigned result[])
 
 #include <ctime>
 #include <iostream>
+#include <fstream>
+#include <cstring>
 #include <random>
+#include <map>
 
-#define SIZE 5000
+#define SIZE 1000
 #define NUM_CLUSTERS 50
+
+// #define GNUPLOT
 
 struct Point {
     float x, y;
@@ -274,6 +279,51 @@ float distPoint (Point &p1, Point &p2)
 {
     return (((p1.x - p2.x)*(p1.x - p2.x)) +
 	    ((p1.y - p2.y)*(p1.y - p2.y)));
+}
+
+static void printForGnuPlot(Point *data, unsigned *result)
+{
+    // This will create NUM_CLUSTERS files in /tmp/hclustering/
+    // with each file given only a number (clusterId) and points
+    // belonging to that clustered entered in the file.
+    // Also a plot.gp file is generated which can be sourced into
+    // gnuplot to plot the final graph.
+
+    std::map<unsigned,unsigned> clusterIdMap;
+    unsigned idCounter = 1, i;
+    std::ofstream files[NUM_CLUSTERS+1];
+    char filename[20];
+
+    // remove existing files if any.
+    for (i = 1; i <= NUM_CLUSTERS; i++) {
+	sprintf(filename, "/tmp/hclustering/%d.txt", i);
+	files[i].open(filename, std::ios::out | std::ios::trunc);
+    }
+    // files[0] will be the gnuplot script.
+    files[0].open("/tmp/hclustering/plot.gp", std::ios::out | std::ios::trunc);
+
+    for (i = 0; i < SIZE; i++) {
+	if (clusterIdMap[result[i]] == 0)
+	    clusterIdMap[result[i]] = idCounter++;
+	files[clusterIdMap[result[i]]] << data[i].x << " " <<
+	      data[i].y << std::endl;
+    }
+
+    assert(idCounter == (NUM_CLUSTERS+1));
+
+    // write out the gnuplot script
+    files[0] << "set nokey\n";
+    files[0] << "plot ";
+    for (i = 1; i <= NUM_CLUSTERS; i++) {
+	files[0] << "     '/tmp/hclustering/" << i << ".txt'";
+	if (i < NUM_CLUSTERS)
+	    files[0] << ", \\\n";
+    }
+    files[0] << "\npause -1 \"Hit any key to exit\"\n";
+
+    // Close all files
+    for (i = 0; i <= NUM_CLUSTERS; i++)
+	files[i].close();
 }
 
 int main (void)
@@ -299,11 +349,16 @@ int main (void)
     hc.cluster(data, SIZE);
     hc.getResult(result);
 
+#ifdef GNUPLOT
+        // print results for gnuplot.
+    printForGnuPlot(data, result);
+#else
     // Print the data along with the clusters they are assigned to.
     for (i = 0; i < SIZE; i++) {
 	std::cout << data[i].x << " " << data[i].y <<
 	    " " << result[i] << std::endl;
     }
+#endif // GNUPLOT
 
     return 0;
 }

@@ -44,6 +44,13 @@ Usage:
         $cd /tmp/hclustering/ ; gnuplot plot.gp
     This will display the clustered data.
     NOTE: Make sure /tmp/hclustering/ exists, the program will not create it.
+  - There are some non-random sample inputs in sample_data/ directory. Compile
+    "main.cpp" in this directory as
+        $cd sample_data ; g++ main.cpp -o visualise
+    You can then run the program visualise as
+        $./visualise data/s1-15.txt 15
+    Where data/s1-15.txt is a sample data file, and it has 15 clusters. (every
+    file name specifies the number of clusters).
 
 TODO:
   - Still need to do a lot of optimizations, with the most important one

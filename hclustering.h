@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <climits>
+#include <vector>
 
 template <class Pt>
 class HClustering

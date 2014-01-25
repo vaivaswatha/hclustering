@@ -154,6 +154,10 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 	// (since we only look at reps during during each iteration).
 	assert(IS_REP(i) && IS_REP(j));
 
+	// If the shortest distance was from i to j, then j to i
+	// must also be the shortest distance.
+	assert(shortestDistance[j].second == shortestDistanceSeen);
+
 	if (clusters[i].members.size() < clusters[j].members.size()) {
 	    // let 'j' represent the smaller cluster.
 	    unsigned temp = i;
@@ -193,19 +197,14 @@ void HClustering<Pt>::cluster(Pt *data, unsigned nElm)
 		shortestDistance[i].first = k;
 	    }
 	    // for 'k', the shortestDistance array may be
-	    // pointing to a non-rep now. Correct that.
+	    // pointing to a non-rep now, or the distance
+	    // to cluster 'i' may change (as cluster 'i' has
+	    // more members now - not always LINK_MINIMUM).
 	    // TODO: Maybe this can be done on-demand, i.e.
 	    // when we see (i, j) distance with j being non-rep.
-	    // BUG: In case of strong-linkage, the "distance"
-	    // between two clusters may increase. For example, 
-	    // if 'x' had 'y' as the nearest neighbour, and some
-	    // other cluster 'z' merges with 'y', but 'z' is farther
-	    // to 'x' than 'y' was. In this case, even though 'x'
-	    // has nearest node to a rep 'y', it will still need
-	    // updation. So below condition of checking for non-rep
-	    // is not sufficient.
-	    if (!IS_REP(shortestDistance[k].first)) {
-		// This must have just happened.
+	    if (!IS_REP(shortestDistance[k].first) ||
+		shortestDistance[k].first == i) 
+	    {
 		assert(clusters[shortestDistance[k].first].rep ==
 		       clusters[i].id);
 		if (linkageType == LINK_MINIMUM) {
